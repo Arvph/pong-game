@@ -28,6 +28,9 @@ void draw_ball(Ball *b) //А эта херовина отрисует мяч
     mvaddch(b->y, b->x, 'O');
 }
 
+int player1_score = 0;
+int player2_score = 0;
+
 int main () 
 {     
     initscr(); //запускаем поле
@@ -35,6 +38,10 @@ int main ()
     cbreak(); //в жопу буфферизацию
     curs_set(0); //делает невидимым курсор. Об этой фишке я вообще не знал
     keypad(stdscr, TRUE); //Эта штука по большому счету нам не нужна, я ее включил чтобы ты ознакомился. Она позволяет использовать спец клавиши типа стрелок вверх вниз ил F1 F2 F3 и тд которые по умолчанию недоступны
+   
+    start_color(); //Инициализируем цветовую подсистему. Да, я уже выебываюсь
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+    init_pair(2, COLOR_BLUE, COLOR_BLACK);
 
     int max_y = 25, max_x = 80;  //Задаем размеры будущего поля
 
@@ -60,17 +67,26 @@ int main ()
 
         //рисуем поле нормальным способом так чтобы оно не улетало в ебеня
 
-        for (int i=0; i< max_y; i++)  //рисуем горизонтальные границы поля
+        attron(COLOR_PAIR(1));  //врубить красный цвет
+
+        for (int i=0; i< max_y; i++)  //рисуем вертикальные границы поля
         {
             mvaddch(i, 0, '#');
             mvaddch(i, max_x - 1, '#');
         } 
 
-        for (int i=0; i< max_x; i++) //рисуем вертикальные границы поля
+        attroff(COLOR_PAIR(1)); //вырубить красный цвет
+
+        for (int i=0; i< max_x; i++) //рисуем горизонтальные границы поля
         {
             mvaddch(0, i, '#');
             mvaddch(max_y - 1, i, '#');
         } 
+
+        //отрисовка счета
+        attron(COLOR_PAIR(2));
+        mvprintw(1, max_x-15, "P1: %d P2 : %d", player1_score, player2_score);
+        attroff(COLOR_PAIR(2));
 
         switch (getch()) //пора ебошить контроллеры
         {
@@ -94,6 +110,20 @@ int main ()
         ball.x += ball.vx;    //обновление положения мяча
         ball.y += ball.vy;
 
+        //проверка на забитый гол
+        if(ball.x <= 0)
+        {
+            player2_score++;
+            ball.x = max_x/2;
+            ball.y = max_y/2;
+        }
+        if(ball.x >= max_x - 1)
+        {
+            player1_score++;
+            ball.x = max_x/2;
+            ball.y = max_y/2;
+        }
+
         //столкновение мяча с ракетками
         if(ball.x == left_paddle.x +1 && ball.y >= left_paddle.y && ball.y < left_paddle.y + left_paddle.length) 
         {
@@ -106,13 +136,26 @@ int main ()
         }
 
         //столкновение мяча с границами поля
-        if(ball.x<=1 || ball.x >= max_x - 2)
+        if(ball.x<=0 || ball.x >= max_x - 1)
         {
             ball.vx *= -1;
         }
         if(ball.y<=1 || ball.y >= max_y - 2)
         {
             ball.vy *= -1;
+        }
+
+        if(player1_score == 21) //ограничение счета
+        {
+            endwin();
+            printf("Player 1 wins!\n");
+            return 0;
+        }
+        if(player2_score == 21)
+        {
+            endwin();
+            printf("Player 2 wins!\n");
+            return 0;
         }
         
         clear();
