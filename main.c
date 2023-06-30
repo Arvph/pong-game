@@ -59,16 +59,16 @@ int main ()
         switch (getch()) //пора ебошить контроллеры
         {
             case 'k':
-                if (right_paddle.y > 0) right_paddle.y--;  //да, контроллеры инвертированы. Да, это раздражает
+                if (right_paddle.y > 1) right_paddle.y--;  //да, контроллеры инвертированы. Да, это раздражает
                 break;
             case 'm':
-                if (right_paddle.y < max_y - 3) right_paddle.y++;  //а знаешь почему минус три? Потому что это длина ракетки
+                if (right_paddle.y < max_y - 4) right_paddle.y++;  //а знаешь почему минус четыре? Потому что это длина ракетки + ширина границы поля
                 break; 
             case 'a':
-                if(left_paddle.y > 0) left_paddle.y--;
+                if(left_paddle.y > 1) left_paddle.y--;
                 break;
             case 'z':
-                if(left_paddle.y < max_y - 3) left_paddle.y++;
+                if(left_paddle.y < max_y - 4) left_paddle.y++;
                 break;
             case 'q':  //тут я думаю очевидно
                 endwin();
