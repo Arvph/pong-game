@@ -8,6 +8,11 @@ typedef struct Paddle // Создаем новую структуру данны
     int x,y,length;
 } Paddle;
 
+typedef struct Ball // Создаем структуру данных мяча
+{
+    int x,y,vx,vy;   //координаты мяча и его скорости(которые так же определяют направление движения)
+} Ball;
+
 void draw_paddle(Paddle *p) // Эта херовина будет рисовать нам ракетки. Она принимает указатель на размеры ракетки а потом грузит их в поле
 {
     for(int i=0; i < p->length; i++)
@@ -16,6 +21,10 @@ void draw_paddle(Paddle *p) // Эта херовина будет рисоват
     }
 }
 
+void draw_ball(Ball *b) //А эта херовина отрисует мяч
+{
+    mvaddch(b->y, b->x, 'O');
+}
 
 int main () 
 {     
@@ -31,15 +40,20 @@ int main ()
     Paddle left_paddle = {2, max_y / 2, 3}; 
     Paddle right_paddle = {max_x - 2, max_y / 2, 3};  
 
+    Ball ball = {max_x / 2, max_y / 2, rand()%2 == 0 ? 1 : -1, rand()%2 == 0 ? 1: -1}; //начальные координаты мяча по центру поля + рандомное определение направления полета
+
+    timeout(100); //установка таймаута в 100 миллисекунд
+
     //Наконец то переходим к основному циклу игры, я уже заебался печатать
 
     while (1)    //запускаем бесконечный цикл
     {
         clear(); //очистка экрана
 
-        //рисуем ракетки
+        //рисуем ракетки и мяч
         draw_paddle(&left_paddle);
-        draw_paddle(&right_paddle);   
+        draw_paddle(&right_paddle); 
+        draw_ball(&ball);  
  
 
         //рисуем поле нормальным способом так чтобы оно не улетало в ебеня
@@ -75,7 +89,23 @@ int main ()
                 return 0;
         }
 
+        ball.x += ball.vx;    //обновление положения мяча
+        ball.y += ball.vy;
 
+        //столкновение мяча с границами поля
+        if(ball.x<=1 || ball.x >= max_x - 2)
+        {
+            ball.vx *= -1;
+        }
+        if(ball.y<=1 || ball.y >= max_y - 2)
+        {
+            ball.vy *= -1;
+        }
+        
+        clear();
+        draw_paddle(&left_paddle);
+        draw_paddle(&right_paddle);
+        mvaddch(ball.y, ball.x, 'O');
         refresh();   //обновляем экран
     }
 
