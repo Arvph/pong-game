@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
+#define PADDLE_LENGTH 5
+
 typedef struct Paddle // Создаем новую структуру данных под названием Paddle
 {
     int x,y,length;
@@ -37,12 +39,12 @@ int main ()
     int max_y = 25, max_x = 80;  //Задаем размеры будущего поля
 
     //Создаем ракетки в указанных координатах длинной в 3 символа. По иксу делаем отступ в 2 столбца с левой границы для левой ракетки и с правой для правой. По У же тупо берем максимальную высоту и делим на два чтобы центрировать
-    Paddle left_paddle = {2, max_y / 2, 3}; 
-    Paddle right_paddle = {max_x - 2, max_y / 2, 3};  
+    Paddle left_paddle = {5, max_y / 2, PADDLE_LENGTH}; 
+    Paddle right_paddle = {max_x - 6, max_y / 2, PADDLE_LENGTH};  
 
     Ball ball = {max_x / 2, max_y / 2, rand()%2 == 0 ? 1 : -1, rand()%2 == 0 ? 1: -1}; //начальные координаты мяча по центру поля + рандомное определение направления полета
 
-    timeout(100); //установка таймаута в 100 миллисекунд
+    timeout(100); //установка таймаута в 100 миллисекунд. Чкм меньше значение - тем выше скорость мяча
 
     //Наконец то переходим к основному циклу игры, я уже заебался печатать
 
@@ -76,13 +78,13 @@ int main ()
                 if (right_paddle.y > 1) right_paddle.y--;  //да, контроллеры инвертированы. Да, это раздражает
                 break;
             case 'm':
-                if (right_paddle.y < max_y - 4) right_paddle.y++;  //а знаешь почему минус четыре? Потому что это длина ракетки + ширина границы поля
+                if (right_paddle.y < max_y - PADDLE_LENGTH - 1) right_paddle.y++;  //а знаешь почему минус четыре? Потому что это длина ракетки + ширина границы поля
                 break; 
             case 'a':
                 if(left_paddle.y > 1) left_paddle.y--;
                 break;
             case 'z':
-                if(left_paddle.y < max_y - 4) left_paddle.y++;
+                if(left_paddle.y < max_y - PADDLE_LENGTH - 1) left_paddle.y++;
                 break;
             case 'q':  //тут я думаю очевидно
                 endwin();
@@ -91,6 +93,17 @@ int main ()
 
         ball.x += ball.vx;    //обновление положения мяча
         ball.y += ball.vy;
+
+        //столкновение мяча с ракетками
+        if(ball.x == left_paddle.x +1 && ball.y >= left_paddle.y && ball.y < left_paddle.y + left_paddle.length) 
+        {
+            ball.vx = -ball.vx;  //отскок мяча
+        }
+
+        if(ball.x == right_paddle.x -1 && ball.y >= right_paddle.y && ball.y < right_paddle.y + right_paddle.length) 
+        {
+            ball.vx = -ball.vx;  //отскок мяча
+        }
 
         //столкновение мяча с границами поля
         if(ball.x<=1 || ball.x >= max_x - 2)
