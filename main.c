@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <time.h>
 
 #define PADDLE_LENGTH 5
 
@@ -41,17 +42,18 @@ void initGame()
    
     start_color(); //Инициализируем цветовую подсистему. Да, я уже выебываюсь
     init_pair(1, COLOR_RED, COLOR_BLACK);
-    init_pair(2, COLOR_BLUE, COLOR_BLACK);
+    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
 
     timeout(100); //установка таймаута в 100 миллисекунд. Чкм меньше значение - тем выше скорость мяча
 }
 
 int main () 
 {     
-    
+    srand(time(NULL));
 
     int max_y = 25, max_x = 80;  //Задаем размеры будущего поля
-
+    
+    
     //Создаем ракетки в указанных координатах длинной в 3 символа. По иксу делаем отступ в 2 столбца с левой границы для левой ракетки и с правой для правой. По У же тупо берем максимальную высоту и делим на два чтобы центрировать
     Paddle left_paddle = {5, max_y / 2, PADDLE_LENGTH}; 
     Paddle right_paddle = {max_x - 6, max_y / 2, PADDLE_LENGTH};  
@@ -65,7 +67,7 @@ int main ()
     while (1)    //запускаем бесконечный цикл
     {
         clear(); //очистка экрана
-
+        
         //рисуем ракетки и мяч
         draw_paddle(&left_paddle);
         draw_paddle(&right_paddle); 
@@ -92,8 +94,14 @@ int main ()
 
         //отрисовка счета
         attron(COLOR_PAIR(2));
-        mvprintw(1, max_x-15, "P1: %d P2 : %d", player1_score, player2_score);
+        mvprintw(0, 34, "P1: %d P2 : %d", player1_score, player2_score);
         attroff(COLOR_PAIR(2));
+
+        mvprintw (26, 5,"GAME RULES!");
+        mvprintw (27, 5,"1) The game runs to 21 points");
+        mvprintw (28, 5,"2) Press \"q\" to exit");
+        mvprintw (29, 5,"3) The left paddle controllers are A and Z");
+        mvprintw (30, 5,"4) The right paddle controllers are K and M");
 
         switch (getch()) //пора ебошить контроллеры
         {
@@ -123,12 +131,16 @@ int main ()
             player2_score++;
             ball.x = max_x/2;
             ball.y = max_y/2;
+            ball.vx = (rand()%2 == 0) ? 1 : -1;
+            ball.vy = (rand()%2 == 0) ? 1 : -1;
         }
         if(ball.x >= max_x - 1)
         {
             player1_score++;
             ball.x = max_x/2;
             ball.y = max_y/2;
+            ball.vx = (rand()%2 == 0) ? 1 : -1;
+            ball.vy = (rand()%2 == 0) ? 1 : -1;
         }
 
         //столкновение мяча с ракетками
@@ -155,13 +167,13 @@ int main ()
         if(player1_score == 21) //ограничение счета
         {
             endwin();
-            printf("Player 1 wins!");
+            printf("Player 1 wins!\n");
             return 0;
         }
         if(player2_score == 21)
         {
             endwin();
-            printf("Player 2 wins!");
+            printf("Player 2 wins!\n");
             return 0;
         }
         
@@ -173,6 +185,7 @@ int main ()
     }
 
     endwin(); //заканчиваем эту ебатеку
+
 
     return 0;
 }
